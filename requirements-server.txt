@@ -1,0 +1,35 @@
+# Server Requirements
+# Yêu cầu cho MCP Figma Sync Server
+
+# Web Framework
+fastapi==0.115.0
+uvicorn[standard]==0.31.1
+
+# HTTP Client
+aiohttp==3.9.1
+requests==2.31.0
+
+# Configuration
+pydantic==2.11.0
+pydantic-settings==2.5.2
+
+# Git Integration
+GitPython==3.1.40
+
+# MCP Support
+mcp==1.13.1
+
+# Utilities
+python-multipart==0.0.9
+python-dotenv==1.0.0
+
+# Logging
+structlog==23.2.0
+
+# Database
+sqlalchemy==2.0.23
+aiosqlite==0.19.0
+
+# Caching
+redis==5.0.1
+aioredis==2.0.1
