@@ -1,6 +1,7 @@
 """
 Figma Sync Service
 Dịch vụ đồng bộ chính với Figma API
+Improved với node ID conversion và enhanced fetch mechanism
 """
 
 import asyncio
@@ -14,16 +15,22 @@ from dataclasses import asdict
 
 from .change_detector import ChangeDetector, NodeInfo, ChangeStatus
 from .dev_ready_detector import DevReadyDetector
+from ..utils.node_id_converter import NodeIdConverter, FigmaNodeResolver
 from config.settings import settings
 
 
 class FigmaAPIClient:
-    """Client để giao tiếp với Figma API"""
+    """Client để giao tiếp với Figma API với improved fetch mechanism"""
 
     def __init__(self, token: str):
+        if not token:
+            raise ValueError("Figma API token is required and cannot be None")
         self.token = token
         self.base_url = "https://api.figma.com/v1"
         self.headers = {"X-Figma-Token": token, "Content-Type": "application/json"}
+
+        # Initialize node resolver for improved fetch
+        self.node_resolver = FigmaNodeResolver(self)
 
     async def get_file_info(self, file_key: str) -> Optional[Dict]:
         """Lấy thông tin file-level bao gồm version"""
@@ -33,21 +40,51 @@ class FigmaAPIClient:
             try:
                 async with session.get(url, headers=self.headers) as response:
                     if response.status == 200:
-                        data = await response.json()
-                        return data
+                        try:
+                            data = await response.json()
+                            # Clean data to remove None keys that might cause serialization issues
+                            data = self._clean_dict_keys(data)
+                            return data
+                        except Exception as json_error:
+                            print(f"Loi parse JSON response: {json_error}")
+                            # Print response text for debugging
+                            response_text = await response.text()
+                            print(f"Response text (first 500 chars): {response_text[:500]}")
+                            return None
                     elif response.status == 429:
-                        print("⏱️ Rate limited - đang chờ...")
+                        print("Rate limited - dang cho...")
                         await asyncio.sleep(settings.figma.retry_delay)
                         return await self.get_file_info(file_key)
                     else:
-                        print(f"❌ Lấy thông tin file thất bại: {response.status}")
+                        print(f"Lay thong tin file that bai: {response.status}")
+                        # Print error response for debugging
+                        try:
+                            error_text = await response.text()
+                            print(f"Error response: {error_text[:500]}")
+                        except:
+                            pass
                         return None
             except Exception as e:
-                print(f"❌ Lỗi khi lấy thông tin file: {e}")
+                print(f"Loi khi lay thong tin file: {e}")
+                import traceback
+                traceback.print_exc()
                 return None
 
+    def _clean_dict_keys(self, data):
+        """Clean dictionary to remove None keys and handle nested structures"""
+        if isinstance(data, dict):
+            cleaned = {}
+            for key, value in data.items():
+                if key is not None:  # Skip None keys
+                    cleaned[key] = self._clean_dict_keys(value)
+            return cleaned
+        elif isinstance(data, list):
+            return [self._clean_dict_keys(item) for item in data]
+        else:
+            return data
+
     async def get_node_structure(self, file_key: str, node_id: str) -> Optional[Dict]:
-        """Lấy cấu trúc node chi tiết"""
+        """Lấy cấu trúc node chi tiết với improved error handling"""
         url = f"{self.base_url}/files/{file_key}/nodes"
         params = {"ids": node_id, "depth": 10}
 
@@ -60,15 +97,59 @@ class FigmaAPIClient:
                             return data["nodes"][node_id]["document"]
                         return None
                     elif response.status == 429:
-                        print("⏱️ Rate limited - đang chờ...")
+                        print("Rate limited - dang cho...")
                         await asyncio.sleep(settings.figma.retry_delay)
                         return await self.get_node_structure(file_key, node_id)
                     else:
-                        print(f"❌ Lỗi API Node: {response.status}")
+                        print(f"Loi API Node: {response.status}")
                         return None
             except Exception as e:
-                print(f"❌ Lỗi khi lấy cấu trúc node: {e}")
+                print(f"Loi khi lay cau truc node: {e}")
                 return None
+
+    async def get_node_structure_with_fallback(self, file_key: str, node_id: str) -> Optional[Dict]:
+        """Lấy cấu trúc node với fallback strategy"""
+        return await self.node_resolver.resolve_node_with_fallbacks(file_key, node_id)
+
+    async def smart_node_search(self, file_key: str, search_term: str, node_type: Optional[str] = None) -> List[Dict]:
+        """Smart search cho nodes dựa trên tên"""
+        return await self.node_resolver.smart_node_search(file_key, search_term, node_type)
+
+    async def validate_node_access(self, file_key: str, node_ids: List[str]) -> Dict[str, bool]:
+        """Validate access cho multiple nodes"""
+        results = {}
+
+        for node_id in node_ids:
+            node_data = await self.get_node_structure(file_key, node_id)
+            results[node_id] = node_data is not None
+
+        return results
+
+    async def get_node_with_enhanced_info(self, file_key: str, node_id: str) -> Optional[Dict]:
+        """Lấy node với enhanced information và metadata"""
+        # Try with fallback first
+        resolved_result = await self.get_node_structure_with_fallback(file_key, node_id)
+
+        if not resolved_result:
+            return None
+
+        node_data = resolved_result["node_data"]
+        resolved_id = resolved_result["resolved_id"]
+
+        # Add enhanced metadata
+        enhanced_data = {
+            **node_data,
+            "_enhanced_metadata": {
+                "original_node_id": node_id,
+                "resolved_node_id": resolved_id,
+                "format_used": resolved_result.get("format_used"),
+                "fetch_timestamp": datetime.now().isoformat(),
+                "node_id_validation": NodeIdConverter.validate_node_id(node_id),
+                "coordinates": NodeIdConverter.extract_node_coordinates(resolved_id)
+            }
+        }
+
+        return enhanced_data
 
     async def export_svg_batch(self, file_key: str, node_ids: List[str]) -> Dict[str, str]:
         """Export SVG theo batch với xử lý lỗi nâng cao"""
@@ -95,19 +176,19 @@ class FigmaAPIClient:
                             if images:
                                 return images
                             else:
-                                print(f"❌ Không có hình ảnh trong response (lần thử {attempt + 1})")
+                                print(f"Khong co hinh anh trong response (lan thu {attempt + 1})")
                         elif response.status == 429:
-                            print(f"⏱️ Rate limited - chờ {settings.figma.retry_delay}s...")
+                            print(f"Rate limited - cho {settings.figma.retry_delay}s...")
                             await asyncio.sleep(settings.figma.retry_delay)
                         else:
                             error_text = await response.text()
-                            print(f"❌ Lỗi API Export: {response.status} - {error_text}")
+                            print(f"Loi API Export: {response.status} - {error_text}")
 
                         if attempt < settings.figma.max_retries - 1:
                             await asyncio.sleep(2**attempt)
 
                 except Exception as e:
-                    print(f"❌ Lỗi trong export batch (lần thử {attempt + 1}): {e}")
+                    print(f"Loi trong export batch (lan thu {attempt + 1}): {e}")
                     if attempt < settings.figma.max_retries - 1:
                         await asyncio.sleep(2**attempt)
 
@@ -124,15 +205,15 @@ class FigmaAPIClient:
                             if content and content.strip().startswith("<"):
                                 return content
                             else:
-                                print(f"❌ Nội dung SVG không hợp lệ (lần thử {attempt + 1})")
+                                print(f"Noi dung SVG khong hop le (lan thu {attempt + 1})")
                         else:
-                            print(f"❌ Tải SVG thất bại: {response.status}")
+                            print(f"Tai SVG that bai: {response.status}")
 
                         if attempt < settings.figma.max_retries - 1:
                             await asyncio.sleep(2**attempt)
 
             except Exception as e:
-                print(f"❌ Lỗi tải SVG (lần thử {attempt + 1}): {e}")
+                print(f"Loi tai SVG (lan thu {attempt + 1}): {e}")
                 if attempt < settings.figma.max_retries - 1:
                     await asyncio.sleep(2**attempt)
 
@@ -165,7 +246,12 @@ class FigmaSyncService:
     """Dịch vụ đồng bộ chính với Figma"""
 
     def __init__(self):
-        self.api_client = FigmaAPIClient(settings.figma.api_token)
+        # Use environment variable directly to avoid settings loading issues
+        import os
+        token = os.environ.get('FIGMA_API_TOKEN')
+        if not token:
+            raise ValueError("FIGMA_API_TOKEN environment variable is not set. Please check your .env file.")
+        self.api_client = FigmaAPIClient(token)
         self.change_detector = None
         self.dev_ready_detector = DevReadyDetector()
 
@@ -232,14 +318,14 @@ class FigmaSyncService:
         naming_filters: Optional[Dict] = None
     ) -> Dict[str, Any]:
         """Xử lý quá trình đồng bộ chính"""
-        print("🧠 Hệ thống Export SVG Figma nâng cao v2.0")
+        print("He thong Export SVG Figma nang cao v2.0")
         print("=" * 60)
-        print(f"📁 File: {file_key}")
-        print(f"🎯 Root Node: {node_id}")
-        print(f"📂 Output: {output_dir}")
-        print(f"🔄 Force Sync: {force_sync}")
-        print(f"⚙️ Batch Size: {settings.figma.batch_size}")
-        print(f"⏱️ Delay: {settings.figma.delay_between_batches}s")
+        print(f"File: {file_key}")
+        print(f"Root Node: {node_id}")
+        print(f"Output: {output_dir}")
+        print(f"Force Sync: {force_sync}")
+        print(f"Batch Size: {settings.figma.batch_size}")
+        print(f"Delay: {settings.figma.delay_between_batches}s")
         print()
 
         # Thiết lập đường dẫn
@@ -251,49 +337,56 @@ class FigmaSyncService:
         if not self.change_detector:
             self.setup_change_detection(cache_file)
 
-        # Bước 1: Lấy thông tin file
-        print("📊 Bước 1: Đang lấy thông tin file...")
+        # Buoc 1: Lay thong tin file
+        print("Buoc 1: Dang lay thong tin file...")
         file_info = await self.api_client.get_file_info(file_key)
         if not file_info:
-            print("❌ Lấy thông tin file thất bại")
+            print("Lay thong tin file that bai")
             return {"error": "Failed to get file information"}
 
         file_version = file_info.get("version", "unknown")
-        print(f"📄 Phiên bản file: {file_version}")
+        print(f"Phien ban file: {file_version}")
 
-        # Bước 2: Lấy cấu trúc node
-        print("\n📊 Bước 2: Đang lấy cấu trúc node...")
-        root_node = await self.api_client.get_node_structure(file_key, node_id)
-        if not root_node:
-            print("❌ Lấy cấu trúc node thất bại")
-            return {"error": "Failed to get node structure"}
+        # Buoc 2: Lay cau truc node voi improved fetch mechanism
+        print("\nBuoc 2: Dang lay cau truc node voi enhanced fetch...")
+        resolved_result = await self.api_client.get_node_structure_with_fallback(file_key, node_id)
 
-        print(f"✅ Root node: {root_node.get('name', 'Unknown')}")
-        print(f"📦 Loại: {root_node.get('type')}")
-        print(f"👶 Children: {len(root_node.get('children', []))}")
+        if not resolved_result:
+            print("Lay cau truc node that bai - tried all fallback formats")
+            return {"error": "Failed to get node structure with any format"}
 
-        # Bước 3: Tìm children có thể export
-        print("\n🔍 Bước 3: Đang tìm children có thể export...")
+        root_node = resolved_result["node_data"]
+        actual_node_id = resolved_result["resolved_id"]
+        format_used = resolved_result.get("format_used", "unknown")
+
+        print(f"Root node: {root_node.get('name', 'Unknown')}")
+        print(f"Loai: {root_node.get('type')}")
+        print(f"Children: {len(root_node.get('children', []))}")
+        print(f"Resolved ID: {actual_node_id} (format: {format_used})")
+        print(f"Original ID: {node_id}")
+
+        # Buoc 3: Tim children co the export
+        print("\nBuoc 3: Dang tim children co the export...")
         exportable_children = self.find_exportable_children(root_node)
-        print(f"✅ Tìm thấy {len(exportable_children)} nodes có thể export")
+        print(f"Tim thay {len(exportable_children)} nodes co the export")
 
-        # Bước 4: Phát hiện thay đổi
-        print("\n🔄 Bước 4: Đang phát hiện thay đổi...")
+        # Buoc 4: Phat hien thay doi
+        print("\nBuoc 4: Dang phat hien thay doi...")
         nodes, change_stats = self.change_detector.detect_changes(exportable_children, file_version)
 
-        print("📈 Thống kê thay đổi:")
-        print(f"   🆕 Mới: {change_stats['new']}")
-        print(f"   🔄 Đã sửa: {change_stats['modified']}")
-        print(f"   ⚪ Không đổi: {change_stats['unchanged']}")
-        print(f"   🗑️ Đã xóa: {change_stats['deleted']}")
+        print("Thong ke thay doi:")
+        print(f"   Moi: {change_stats['new']}")
+        print(f"   Da sua: {change_stats['modified']}")
+        print(f"   Khong doi: {change_stats['unchanged']}")
+        print(f"   Da xoa: {change_stats['deleted']}")
 
-        # Áp dụng naming filters
+        # Ap dung naming filters
         if naming_filters:
             nodes = self.change_detector.apply_naming_filters(nodes, naming_filters)
-            print(f"📝 Sau khi lọc: {len(nodes)} nodes")
+            print(f"Sau khi loc: {len(nodes)} nodes")
 
-        # Bước 5: Đánh giá dev-ready
-        print("\n🚀 Bước 5: Đang đánh giá dev-ready...")
+        # Buoc 5: Danh gia dev-ready
+        print("\nBuoc 5: Dang danh gia dev-ready...")
         for node in nodes:
             score, issues, status = self.dev_ready_detector.assess_readiness(node)
             node.dev_ready_score = score
@@ -305,18 +398,11 @@ class FigmaSyncService:
         for node in nodes:
             status_counts[node.status.value] = status_counts.get(node.status.value, 0) + 1
 
-        print("🎯 Thống kê dev-ready:")
+        print("Thong ke dev-ready:")
         for status, count in status_counts.items():
-            emoji = {
-                "ready": "🟢",
-                "approved": "🟢",
-                "review": "🟡",
-                "draft": "🟠",
-                "unknown": "⚪",
-            }.get(status, "⚪")
-            print(f"   {emoji} {status.title()}: {count}")
+            print(f"   {status.title()}: {count}")
 
-        # Bước 6: Xử lý export
+        # Buoc 6: Xu ly export
         nodes_to_export = nodes
         if not force_sync:
             nodes_to_export = [
@@ -326,10 +412,10 @@ class FigmaSyncService:
             ]
 
         if not nodes_to_export:
-            print("\n✅ Tất cả nodes đều đã cập nhật!")
+            print("\nTat ca nodes deu da cap nhat!")
             return {"message": "All nodes are up to date"}
 
-        print(f"\n🚀 Bước 6: Đang export {len(nodes_to_export)} nodes...")
+        print(f"\nBuoc 6: Dang export {len(nodes_to_export)} nodes...")
 
         # Xử lý theo batch
         batch_size = settings.figma.batch_size
@@ -337,35 +423,35 @@ class FigmaSyncService:
             nodes_to_export[i : i + batch_size] for i in range(0, len(nodes_to_export), batch_size)
         ]
 
-        print(f"📦 Xử lý {len(batches)} batches với tối đa {batch_size} nodes mỗi batch")
+        print(f"Xu ly {len(batches)} batches voi toi da {batch_size} nodes moi batch")
 
         for i, batch in enumerate(batches, 1):
             print(f"\n--- Batch {i}/{len(batches)} ---")
             await self._process_batch(file_key, batch, output_path, force_sync)
 
-        # Bước 7: Lưu cache và tạo báo cáo
-        print("\n💾 Bước 7: Đang lưu cache và tạo báo cáo...")
+        # Buoc 7: Luu cache va tao bao cao
+        print("\nBuoc 7: Dang luu cache va tao bao cao...")
         self.change_detector._save_cache(nodes, file_version)
 
-        # Tạo báo cáo toàn diện
+        # Tao bao cao toan dien
         await self._generate_report(output_path, nodes, change_stats)
 
-        # Tổng kết cuối cùng
+        # Tong ket cuoi cung
         elapsed = datetime.now() - self.start_time
-        print(f"\n📊 TỔNG KẾT EXPORT")
+        print(f"\nTONG KET EXPORT")
         print("=" * 50)
-        print(f"✅ Đã export: {self.stats['exported']}")
-        print(f"⏭️ Bỏ qua (không đổi): {self.stats['skipped']}")
-        print(f"❌ Thất bại: {self.stats['failed']}")
-        print(f"🟢 Dev-ready: {self.stats['dev_ready']}")
-        print(f"🟡 Cần review: {self.stats['needs_review']}")
-        print(f"⏱️ Thời gian tổng: {elapsed}")
-        print(f"📁 Output: {output_path.absolute()}")
+        print(f"Da export: {self.stats['exported']}")
+        print(f"Bo qua (khong doi): {self.stats['skipped']}")
+        print(f"That bai: {self.stats['failed']}")
+        print(f"Dev-ready: {self.stats['dev_ready']}")
+        print(f"Can review: {self.stats['needs_review']}")
+        print(f"Thoi gian tong: {elapsed}")
+        print(f"Output: {output_path.absolute()}")
 
         if self.stats["exported"] > 0:
-            print(f"\n🎉 Export hoàn thành! Kiểm tra {output_dir}/ để xem files")
+            print(f"\nExport hoan thanh! Kiem tra {output_dir}/ de xem files")
         else:
-            print(f"\n✅ Không cần export - mọi thứ đã cập nhật!")
+            print(f"\nKhong can export - moi thu da cap nhat!")
 
         return {
             "exported": self.stats["exported"],
@@ -404,11 +490,11 @@ class FigmaSyncService:
         batch_stats = {"exported": 0, "skipped": len(skipped_nodes), "failed": 0}
 
         if not exportable_nodes:
-            print(f"⏭️ Tất cả {len(nodes)} nodes không đổi, bỏ qua batch")
+            print(f"Tat ca {len(nodes)} nodes khong doi, bo qua batch")
             return batch_stats
 
         print(
-            f"\n🚀 Xử lý batch: {len(exportable_nodes)} nodes (bỏ qua {len(skipped_nodes)} không đổi)"
+            f"\nXu ly batch: {len(exportable_nodes)} nodes (bo qua {len(skipped_nodes)} khong doi)"
         )
 
         # Trích xuất node IDs để export
@@ -418,11 +504,11 @@ class FigmaSyncService:
         svg_urls = await self.api_client.export_svg_batch(file_key, node_ids)
 
         if not svg_urls:
-            print(f"❌ Không nhận được SVG URLs")
+            print(f"Khong nhan duoc SVG URLs")
             batch_stats["failed"] = len(exportable_nodes)
             return batch_stats
 
-        print(f"✅ Nhận {len(svg_urls)} SVG URLs")
+        print(f"Nhan {len(svg_urls)} SVG URLs")
 
         # Tải và lưu từng SVG
         for node in exportable_nodes:
@@ -441,13 +527,13 @@ class FigmaSyncService:
                     batch_stats["failed"] += 1
                     self.stats["failed"] += 1
             else:
-                print(f"❌ Không có SVG URL cho {node.name}")
+                print(f"Khong co SVG URL cho {node.name}")
                 batch_stats["failed"] += 1
                 self.stats["failed"] += 1
 
         # Rate limiting
         if settings.figma.delay_between_batches > 0:
-            print(f"⏱️ Chờ {settings.figma.delay_between_batches}s...")
+            print(f"Cho {settings.figma.delay_between_batches}s...")
             await asyncio.sleep(settings.figma.delay_between_batches)
 
         return batch_stats
@@ -456,7 +542,7 @@ class FigmaSyncService:
         """Lưu SVG của node với metadata"""
         try:
             print(
-                f"⬇️ Đang tải: {node.name} ({'🟢' if node.status.value == 'ready' else '🟡'})"
+                f"Dang tai: {node.name} ({'ready' if node.status.value == 'ready' else 'review'})"
             )
 
             # Tải nội dung SVG
@@ -508,19 +594,19 @@ class FigmaSyncService:
             with open(metadata_file, "w", encoding="utf-8") as f:
                 json.dump(metadata, f, indent=2, ensure_ascii=False)
 
-            # Emoji trạng thái
-            status_emoji = (
-                "🟢"
+            # Trang thai
+            status_text = (
+                "ready"
                 if node.status.value == "ready"
-                else "🟡"
+                else "approved"
                 if node.status.value == "approved"
-                else "🟠"
+                else "draft"
             )
-            print(f"✅ Đã lưu: {filename} ({len(svg_content)} bytes) {status_emoji}")
+            print(f"Da luu: {filename} ({len(svg_content)} bytes) {status_text}")
             return True
 
         except Exception as e:
-            print(f"❌ Lưu {node.name} thất bại: {e}")
+            print(f"Luu {node.name} that bai: {e}")
             return False
 
     async def _generate_report(
@@ -555,28 +641,28 @@ class FigmaSyncService:
         with open(report_file, "w", encoding="utf-8") as f:
             json.dump(report_data, f, indent=2, ensure_ascii=False)
 
-        print(f"📋 Báo cáo chi tiết đã lưu: {report_file}")
+        print(f"Bao cao chi tiet da luu: {report_file}")
 
-        # Tạo tóm tắt dễ đọc
+        # Tao tom tat de doc
         summary_file = output_dir / "export_summary.md"
         with open(summary_file, "w", encoding="utf-8") as f:
-            f.write(f"# Tóm tắt Export\n\n")
-            f.write(f"**Ngày:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-            f.write(f"## Tổng quan\n")
-            f.write(f"- Tổng nodes đã xử lý: {len(nodes)}\n")
-            f.write(f"- Đã export thành công: {self.stats['exported']}\n")
-            f.write(f"- Export thất bại: {self.stats['failed']}\n")
+            f.write(f"# Tom tat Export\n\n")
+            f.write(f"**Ngay:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            f.write(f"## Tong quan\n")
+            f.write(f"- Tong nodes da xu ly: {len(nodes)}\n")
+            f.write(f"- Da export thanh cong: {self.stats['exported']}\n")
+            f.write(f"- Export that bai: {self.stats['failed']}\n")
             f.write(f"- Icons dev-ready: {self.stats['dev_ready']}\n\n")
 
-            f.write(f"## Thay đổi đã phát hiện\n")
-            f.write(f"- Mới: {change_stats['new']}\n")
-            f.write(f"- Đã sửa: {change_stats['modified']}\n")
-            f.write(f"- Không đổi: {change_stats['unchanged']}\n")
-            f.write(f"- Đã xóa: {change_stats['deleted']}\n\n")
+            f.write(f"## Thay doi da phat hien\n")
+            f.write(f"- Moi: {change_stats['new']}\n")
+            f.write(f"- Da sua: {change_stats['modified']}\n")
+            f.write(f"- Khong doi: {change_stats['unchanged']}\n")
+            f.write(f"- Da xoa: {change_stats['deleted']}\n\n")
 
-            f.write(f"## Cấu hình\n")
-            f.write(f"- Kích thước batch: {settings.figma.batch_size}\n")
-            f.write(f"- Độ trễ giữa batches: {settings.figma.delay_between_batches}s\n")
-            f.write(f"- Số lần retry tối đa: {settings.figma.max_retries}\n\n")
+            f.write(f"## Cau hinh\n")
+            f.write(f"- Kich thuoc batch: {settings.figma.batch_size}\n")
+            f.write(f"- Do tre giua batches: {settings.figma.delay_between_batches}s\n")
+            f.write(f"- So lan retry toi da: {settings.figma.max_retries}\n\n")
 
-        print(f"📝 Báo cáo tóm tắt đã lưu: {summary_file}")
+        print(f"Bao cao tom tat da luu: {summary_file}")

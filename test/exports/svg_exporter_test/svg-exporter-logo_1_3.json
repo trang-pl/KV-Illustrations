@@ -1,0 +1,33 @@
+{
+  "id": "1:3",
+  "name": "svg_exporter_logo",
+  "type": "COMPONENT",
+  "width": 200,
+  "height": 60,
+  "last_modified": null,
+  "version": 0,
+  "path": "Root Frame/svg_exporter_logo",
+  "depth": 1,
+  "status": "draft",
+  "change_status": "unchanged",
+  "dev_ready_score": 0.55,
+  "issues": [
+    "Đặt tên: 'svg_exporter_logo' nên dùng kebab-case (vd: 'user-profile')",
+    "Kích thước: Icon nên là hình vuông, nhận 200x60",
+    "Kích thước: Kích thước không chuẩn 200x60. Đề xuất: 16x16, 24x24, 32x32, 48x48, 64x64"
+  ],
+  "exported_at": "2025-08-28T16:08:32.166779",
+  "svg_size": 287,
+  "config_used": {
+    "batch_size": 10,
+    "delay_between_batches": 1.5,
+    "max_concurrent_requests": 5
+  },
+  "export_settings": {
+    "scale": 1,
+    "format": "svg",
+    "svg_outline_text": false,
+    "svg_include_id": true,
+    "svg_simplify_stroke": true
+  }
+}

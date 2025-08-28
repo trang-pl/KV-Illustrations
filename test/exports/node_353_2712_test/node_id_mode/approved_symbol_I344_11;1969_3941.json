@@ -1,0 +1,32 @@
+{
+  "id": "I344:11;1969:3941",
+  "name": "Symbol",
+  "type": "FRAME",
+  "width": 100.30000305175781,
+  "height": 95.5999984741211,
+  "last_modified": null,
+  "version": 0,
+  "path": "Default/Kiotviet Connect / Logo-Vertical-White-2D/Symbol",
+  "depth": 2,
+  "status": "approved",
+  "change_status": "new",
+  "dev_ready_score": 0.8,
+  "issues": [
+    "Kích thước: Icon nên là hình vuông, nhận 100.30000305175781x95.5999984741211",
+    "Kích thước: Kích thước không chuẩn 100.30000305175781x95.5999984741211. Đề xuất: 16x16, 24x24, 32x32, 48x48, 64x64"
+  ],
+  "exported_at": "2025-08-28T16:27:49.934281",
+  "svg_size": 1635,
+  "config_used": {
+    "batch_size": 10,
+    "delay_between_batches": 1.5,
+    "max_concurrent_requests": 5
+  },
+  "export_settings": {
+    "scale": 1,
+    "format": "svg",
+    "svg_outline_text": false,
+    "svg_include_id": true,
+    "svg_simplify_stroke": true
+  }
+}

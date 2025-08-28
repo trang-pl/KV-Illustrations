@@ -1,0 +1,31 @@
+{
+  "id": "418:549",
+  "name": "Asset",
+  "type": "FRAME",
+  "width": 20.0,
+  "height": 20.0,
+  "last_modified": null,
+  "version": 0,
+  "path": "Default/Test/Thumbnail / FnB/Asset",
+  "depth": 3,
+  "status": "ready",
+  "change_status": "new",
+  "dev_ready_score": 0.9,
+  "issues": [
+    "Kích thước: Kích thước không chuẩn 20.0x20.0. Đề xuất: 16x16, 24x24, 32x32, 48x48, 64x64"
+  ],
+  "exported_at": "2025-08-28T16:27:57.728961",
+  "svg_size": 2023,
+  "config_used": {
+    "batch_size": 10,
+    "delay_between_batches": 1.5,
+    "max_concurrent_requests": 5
+  },
+  "export_settings": {
+    "scale": 1,
+    "format": "svg",
+    "svg_outline_text": false,
+    "svg_include_id": true,
+    "svg_simplify_stroke": true
+  }
+}

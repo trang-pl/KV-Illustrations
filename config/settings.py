@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Add project root to sys.path to enable imports from config
 project_root = Path(__file__).parent.parent
@@ -73,14 +73,24 @@ class Settings(BaseSettings):
     sync: SyncConfig = SyncConfig()
     server: ServerConfig = ServerConfig()
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="allow"
+    )
 
 
 # Global settings instance
 settings = Settings()
+
+def reload_settings():
+    """Reload settings after loading environment variables"""
+    import dotenv
+    dotenv.load_dotenv()
+    global settings
+    settings = Settings()
+    return settings
 
 
 def load_config_from_file(config_path: Optional[Path] = None) -> Settings:

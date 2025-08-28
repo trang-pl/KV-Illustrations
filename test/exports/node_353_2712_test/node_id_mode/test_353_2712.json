@@ -1,0 +1,33 @@
+{
+  "id": "353:2712",
+  "name": "Test",
+  "type": "FRAME",
+  "width": 533.0,
+  "height": 293.0,
+  "last_modified": null,
+  "version": 0,
+  "path": "Default/Test",
+  "depth": 1,
+  "status": "draft",
+  "change_status": "new",
+  "dev_ready_score": 0.65,
+  "issues": [
+    "Kích thước: Icon nên là hình vuông, nhận 533.0x293.0",
+    "Kích thước: Kích thước không chuẩn 533.0x293.0. Đề xuất: 16x16, 24x24, 32x32, 48x48, 64x64",
+    "Trạng thái: Chứa từ khóa WIP trong 'Test'"
+  ],
+  "exported_at": "2025-08-28T16:27:51.836354",
+  "svg_size": 4496,
+  "config_used": {
+    "batch_size": 10,
+    "delay_between_batches": 1.5,
+    "max_concurrent_requests": 5
+  },
+  "export_settings": {
+    "scale": 1,
+    "format": "svg",
+    "svg_outline_text": false,
+    "svg_include_id": true,
+    "svg_simplify_stroke": true
+  }
+}

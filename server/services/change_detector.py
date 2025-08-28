@@ -64,10 +64,10 @@ class ChangeDetector:
             try:
                 with open(self.cache_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    print(f"📚 Đã tải cache với {len(data.get('nodes', {}))} nodes")
+                    print(f"[CACHE] Da tai cache voi {len(data.get('nodes', {}))} nodes")
                     return data
             except Exception as e:
-                print(f"⚠️ Không thể tải cache: {e}")
+                print(f"[WARNING] Khong the tai cache: {e}")
         return {"nodes": {}, "last_export": None, "file_version": None}
 
     def _save_cache(self, nodes: List[NodeInfo], file_version: str):
@@ -93,9 +93,9 @@ class ChangeDetector:
             self.cache_file.parent.mkdir(parents=True, exist_ok=True)
             with open(self.cache_file, "w", encoding="utf-8") as f:
                 json.dump(cache_data, f, indent=2, ensure_ascii=False)
-            print(f"💾 Cache đã cập nhật với {len(cache_data['nodes'])} nodes")
+            print(f"[CACHE] Cache da cap nhat voi {len(cache_data['nodes'])} nodes")
         except Exception as e:
-            print(f"⚠️ Không thể lưu cache: {e}")
+            print(f"[WARNING] Khong the luu cache: {e}")
 
     def detect_changes(
         self, current_nodes: List[Dict], file_version: str

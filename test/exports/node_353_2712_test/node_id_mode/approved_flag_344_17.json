@@ -1,0 +1,32 @@
+{
+  "id": "344:17",
+  "name": "Flag",
+  "type": "INSTANCE",
+  "width": 24.0,
+  "height": 15.999984741210938,
+  "last_modified": null,
+  "version": 0,
+  "path": "Default/Flag",
+  "depth": 1,
+  "status": "approved",
+  "change_status": "new",
+  "dev_ready_score": 0.8,
+  "issues": [
+    "Kích thước: Icon nên là hình vuông, nhận 24.0x15.999984741210938",
+    "Kích thước: Kích thước không chuẩn 24.0x15.999984741210938. Đề xuất: 16x16, 24x24, 32x32, 48x48, 64x64"
+  ],
+  "exported_at": "2025-08-28T16:27:50.552656",
+  "svg_size": 548,
+  "config_used": {
+    "batch_size": 10,
+    "delay_between_batches": 1.5,
+    "max_concurrent_requests": 5
+  },
+  "export_settings": {
+    "scale": 1,
+    "format": "svg",
+    "svg_outline_text": false,
+    "svg_include_id": true,
+    "svg_simplify_stroke": true
+  }
+}

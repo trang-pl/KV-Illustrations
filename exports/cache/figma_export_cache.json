@@ -1,0 +1,15 @@
+{
+  "nodes": {
+    "1": {
+      "name": "svg_exporter_button",
+      "last_modified": null,
+      "version": 0,
+      "exported_at": null,
+      "dev_ready_score": 0.0,
+      "status": "unknown",
+      "svg_size": null
+    }
+  },
+  "last_export": "2025-08-28T15:19:27.046193",
+  "file_version": "v1.0"
+}

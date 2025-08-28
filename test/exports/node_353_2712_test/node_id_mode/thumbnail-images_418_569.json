@@ -1,0 +1,31 @@
+{
+  "id": "418:569",
+  "name": "Thumbnail / Images",
+  "type": "FRAME",
+  "width": 32.0,
+  "height": 32.0,
+  "last_modified": null,
+  "version": 0,
+  "path": "Default/Test/Thumbnail / Images",
+  "depth": 2,
+  "status": "review",
+  "change_status": "new",
+  "dev_ready_score": 0.75,
+  "issues": [
+    "Đặt tên: 'Thumbnail / Images' nên dùng kebab-case (vd: 'user-profile')"
+  ],
+  "exported_at": "2025-08-28T16:27:58.387753",
+  "svg_size": 1154,
+  "config_used": {
+    "batch_size": 10,
+    "delay_between_batches": 1.5,
+    "max_concurrent_requests": 5
+  },
+  "export_settings": {
+    "scale": 1,
+    "format": "svg",
+    "svg_outline_text": false,
+    "svg_include_id": true,
+    "svg_simplify_stroke": true
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "nodes": {
+    "431:22256": {
+      "name": "svg_exporter_thumbnail-rasterized",
+      "last_modified": null,
+      "version": 0,
+      "exported_at": "2025-08-28T17:40:44.358336",
+      "dev_ready_score": 0.75,
+      "status": "review",
+      "svg_size": 1176
+    },
+    "431:22257": {
+      "name": "Asset",
+      "last_modified": null,
+      "version": 0,
+      "exported_at": "2025-08-28T17:40:45.163908",
+      "dev_ready_score": 0.9,
+      "status": "ready",
+      "svg_size": 1084
+    }
+  },
+  "last_export": "2025-08-28T17:40:46.681971",
+  "file_version": "2257242658806680013"
+}
