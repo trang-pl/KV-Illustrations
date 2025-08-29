@@ -1,0 +1,12 @@
+{
+  "backup_id": "export_engine_backup_20250829_030803",
+  "source_path": "exports\\export_engine",
+  "backup_path": "exports\\backups\\export_engine_backup_20250829_030803",
+  "backup_type": "full",
+  "timestamp": "2025-08-29T03:08:03.528291+00:00",
+  "source_hash": "f5fc1959ccd367a249c8f50ed1e6a745",
+  "backup_hash": "f5fc1959ccd367a249c8f50ed1e6a745",
+  "verification_status": true,
+  "file_count": 2,
+  "total_size": 1975
+}

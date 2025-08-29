@@ -1,0 +1,59 @@
+{
+  "naming_prefixes": {
+    "svg_exporter": "svg_exporter_",
+    "img_exporter": "img_exporter_",
+    "icon_exporter": "icon_exporter_"
+  },
+  "filter_patterns": {
+    "include": ["svg_exporter_*", "img_exporter_*"],
+    "exclude": ["*_deprecated", "*_temp"],
+    "include_patterns": ["svg_exporter_*"],
+    "exclude_patterns": [],
+    "case_sensitive": false
+  },
+  "api_settings": {
+    "base_url": "https://api.figma.com/v1",
+    "api_token": "figd_your_valid_figma_token_here",
+    "requests_per_minute": 60,
+    "timeout": 30,
+    "max_retries": 3
+  },
+  "output_settings": {
+    "default_output_dir": "exports/figma_client/",
+    "report_formats": ["json", "markdown"],
+    "pipeline_output_dir": "exports/pipeline_execution/",
+    "individual_module_output": true
+  },
+  "target_nodes": {
+    "enabled": true,
+    "node_ids": [
+      "453:37",
+      "453:43"
+    ],
+    "export_mode": "svg",
+    "process_children": true
+  },
+  "export": {
+    "naming_strategy": "svg_exporter_",
+    "duplicate_handling": "rename",
+    "create_backup": true,
+    "performance_monitoring": true
+  },
+  "execution": {
+    "error_handling": "continue",
+    "rollback_on_failure": true,
+    "cleanup_on_success": true
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "logs/pipeline.log",
+    "console": true
+  },
+  "performance": {
+    "timeout_seconds": 300,
+    "retry_attempts": 3,
+    "retry_delay": 5,
+    "memory_limit_mb": 512
+  }
+}

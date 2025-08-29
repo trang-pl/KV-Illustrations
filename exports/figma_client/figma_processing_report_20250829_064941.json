@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "timestamp": "2025-08-29T06:49:41.143201+00:00",
+    "generator": "Figma Client Module v1.0",
+    "version": "1.0.0"
+  },
+  "processing_result": {
+    "success": true,
+    "pages": [
+      {
+        "id": "143:2",
+        "name": "Test page Informatin",
+        "node_count": 4,
+        "visible_nodes": [
+          {
+            "id": "431:22190",
+            "name": "img_exporter_thumbnail",
+            "type": "INSTANCE",
+            "visible": true
+          },
+          {
+            "id": "431:22260",
+            "name": "svg_exporter_thumbnail",
+            "type": "INSTANCE",
+            "visible": true
+          },
+          {
+            "id": "431:22252",
+            "name": "img_exporter_thumbnail-rasterized",
+            "type": "FRAME",
+            "visible": true
+          },
+          {
+            "id": "431:22256",
+            "name": "svg_exporter_thumbnail-rasterized",
+            "type": "FRAME",
+            "visible": true
+          }
+        ]
+      }
+    ],
+    "total_pages": 1,
+    "total_nodes": 4,
+    "filter_criteria": [
+      [
+        "svg_exporter_*",
+        "img_exporter_*"
+      ],
+      [
+        "*_deprecated",
+        "*_temp"
+      ],
+      false
+    ],
+    "error": null
+  },
+  "statistics": {
+    "error": "'FilterCriteria' object has no attribute 'get'"
+  },
+  "configuration": {
+    "config_path": "d:\\Github\\KV-Illustrations\\scripts\\config\\figma_client_config.json",
+    "naming_prefixes": {
+      "svg_exporter": "svg_exporter_",
+      "img_exporter": "img_exporter_",
+      "icon_exporter": "icon_exporter_"
+    },
+    "filter_patterns": {
+      "include": [
+        "svg_exporter_*",
+        "img_exporter_*"
+      ],
+      "exclude": [
+        "*_deprecated",
+        "*_temp"
+      ],
+      "case_sensitive": false
+    },
+    "api_settings": {
+      "base_url": "https://api.figma.com/v1",
+      "requests_per_minute": 60,
+      "timeout": 30
+    },
+    "output_settings": {
+      "default_output_dir": "exports/figma_client/",
+      "report_formats": [
+        "json",
+        "markdown"
+      ]
+    },
+    "target_nodes": {
+      "enabled": true,
+      "node_ids": [
+        "453:37",
+        "453:43"
+      ],
+      "export_mode": "svg",
+      "process_children": true
+    }
+  },
+  "system_info": {
+    "python_version": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+    "platform": "win32"
+  }
+}

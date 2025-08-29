@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "processed_nodes": [],
+  "summary": {
+    "total_nodes": 0,
+    "export_ready_nodes": 0,
+    "target_nodes_found": 0,
+    "validation_errors": 0,
+    "processing_time": 0.000997
+  },
+  "target_nodes_config": {
+    "enabled": true,
+    "node_ids": [
+      "453:37",
+      "453:43"
+    ],
+    "export_mode": "svg",
+    "process_children": true
+  },
+  "timestamp": "2025-08-29T06:53:20.507670+00:00"
+}

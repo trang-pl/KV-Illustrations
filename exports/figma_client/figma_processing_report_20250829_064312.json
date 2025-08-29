@@ -1,0 +1,100 @@
+{
+  "metadata": {
+    "timestamp": "2025-08-29T06:43:12.511363+00:00",
+    "generator": "Figma Client Module v1.0",
+    "version": "1.0.0"
+  },
+  "processing_result": {
+    "success": true,
+    "total_pages": 2,
+    "total_nodes": 10,
+    "pages": [
+      {
+        "id": "page1",
+        "name": "Test Page 1",
+        "node_count": 5
+      }
+    ],
+    "filter_criteria": {
+      "include": [
+        "svg_exporter_*"
+      ],
+      "exclude": [],
+      "case_sensitive": false
+    }
+  },
+  "statistics": {
+    "success": true,
+    "total_pages": 2,
+    "total_nodes": 10,
+    "processing_time": null,
+    "average_nodes_per_page": 5.0,
+    "filter_applied": true,
+    "filter_statistics": {
+      "include": [
+        "svg_exporter_*"
+      ],
+      "exclude": [],
+      "case_sensitive": false
+    },
+    "page_details": [
+      {
+        "name": "Test Page 1",
+        "node_count": 5,
+        "id": "page1"
+      }
+    ]
+  },
+  "configuration": {
+    "config_path": "d:\\Github\\KV-Illustrations\\scripts\\config\\figma_client_config.json",
+    "naming_prefixes": {
+      "svg_exporter": "svg_exporter_",
+      "img_exporter": "img_exporter_",
+      "icon_exporter": "icon_exporter_"
+    },
+    "filter_patterns": {
+      "include": [
+        "svg_exporter_*",
+        "img_exporter_*"
+      ],
+      "exclude": [
+        "*_deprecated",
+        "*_temp"
+      ],
+      "case_sensitive": false
+    },
+    "api_settings": {
+      "base_url": "https://api.figma.com/v1",
+      "requests_per_minute": 60,
+      "timeout": 30
+    },
+    "output_settings": {
+      "default_output_dir": "exports/figma_client/",
+      "report_formats": [
+        "json",
+        "markdown"
+      ]
+    },
+    "target_nodes": {
+      "enabled": true,
+      "node_ids": [
+        "453:37",
+        "453:43",
+        "431:22256",
+        "431:22252",
+        "431:22190",
+        "431:22260",
+        "344:11",
+        "344:17",
+        "210:3",
+        "10:14"
+      ],
+      "export_mode": "svg",
+      "process_children": true
+    }
+  },
+  "system_info": {
+    "python_version": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+    "platform": "win32"
+  }
+}

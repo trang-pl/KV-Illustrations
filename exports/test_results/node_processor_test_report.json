@@ -1,0 +1,142 @@
+{
+  "success": true,
+  "processed_nodes": [
+    {
+      "id": "453:37",
+      "name": "svg_exporter_thumbnail",
+      "type": "FRAME",
+      "page_id": "0:1",
+      "page_name": "Page 1",
+      "prefix": "svg_exporter",
+      "base_name": "thumbnail",
+      "is_target": true,
+      "validation_errors": [],
+      "export_ready": true
+    },
+    {
+      "id": "453:43",
+      "name": "img_exporter_banner",
+      "type": "FRAME",
+      "page_id": "0:1",
+      "page_name": "Page 1",
+      "prefix": "img_exporter",
+      "base_name": "banner",
+      "is_target": true,
+      "validation_errors": [],
+      "export_ready": true
+    },
+    {
+      "id": "453:37",
+      "name": "regular_thumbnail",
+      "type": "FRAME",
+      "page_id": "0:1",
+      "page_name": "Page 1",
+      "prefix": null,
+      "base_name": "regular_thumbnail",
+      "is_target": true,
+      "validation_errors": [],
+      "export_ready": false
+    },
+    {
+      "id": "453:43",
+      "name": "normal_banner",
+      "type": "FRAME",
+      "page_id": "0:1",
+      "page_name": "Page 1",
+      "prefix": null,
+      "base_name": "normal_banner",
+      "is_target": true,
+      "validation_errors": [],
+      "export_ready": false
+    },
+    {
+      "id": "453:50",
+      "name": "svg_exporter_icon",
+      "type": "FRAME",
+      "page_id": "0:1",
+      "page_name": "Page 1",
+      "prefix": "svg_exporter",
+      "base_name": "icon",
+      "is_target": false,
+      "validation_errors": [],
+      "export_ready": false
+    },
+    {
+      "id": "453:60",
+      "name": "img_exporter_button",
+      "type": "FRAME",
+      "page_id": "0:1",
+      "page_name": "Page 1",
+      "prefix": "img_exporter",
+      "base_name": "button",
+      "is_target": false,
+      "validation_errors": [],
+      "export_ready": false
+    },
+    {
+      "id": "453:70",
+      "name": "regular_icon",
+      "type": "FRAME",
+      "page_id": "0:1",
+      "page_name": "Page 1",
+      "prefix": null,
+      "base_name": "regular_icon",
+      "is_target": false,
+      "validation_errors": [],
+      "export_ready": false
+    },
+    {
+      "id": "453:80",
+      "name": "normal_button",
+      "type": "FRAME",
+      "page_id": "0:1",
+      "page_name": "Page 1",
+      "prefix": null,
+      "base_name": "normal_button",
+      "is_target": false,
+      "validation_errors": [],
+      "export_ready": false
+    },
+    {
+      "id": "999:999",
+      "name": "svg_exporter_test",
+      "type": "FRAME",
+      "page_id": "0:1",
+      "page_name": "Page 1",
+      "prefix": "svg_exporter",
+      "base_name": "test",
+      "is_target": false,
+      "validation_errors": [],
+      "export_ready": false
+    },
+    {
+      "id": "888:888",
+      "name": "icon_exporter_close",
+      "type": "FRAME",
+      "page_id": "0:1",
+      "page_name": "Page 1",
+      "prefix": "icon_exporter",
+      "base_name": "close",
+      "is_target": false,
+      "validation_errors": [],
+      "export_ready": false
+    }
+  ],
+  "summary": {
+    "total_nodes": 10,
+    "export_ready_nodes": 2,
+    "target_nodes_found": 4,
+    "validation_errors": 0,
+    "processing_time": 0.0
+  },
+  "target_nodes_config": {
+    "enabled": true,
+    "node_ids": [
+      "453:37",
+      "453:43"
+    ],
+    "export_mode": "svg",
+    "process_children": true
+  },
+  "timestamp": "2025-08-29T05:38:06.960336+00:00"
+}

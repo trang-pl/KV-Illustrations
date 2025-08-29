@@ -1,0 +1,19 @@
+{
+  "metrics": {
+    "total_execution_time": 54.300000000000004,
+    "module_execution_times": {
+      "credentials_loader": 1.2,
+      "figma_client": 5.8,
+      "node_processor": 2.1,
+      "export_engine": 45.2
+    },
+    "success_rate": 93.75,
+    "error_count": 0,
+    "files_exported": 30,
+    "nodes_processed": 45,
+    "target_nodes_found": 2,
+    "average_naming_score": 85.5
+  },
+  "timestamp": "2025-08-29T02:39:15.024825+00:00",
+  "pipeline_version": "1.0.0"
+}

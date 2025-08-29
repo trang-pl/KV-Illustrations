@@ -1,0 +1,55 @@
+{
+  "success": true,
+  "exported_files": {},
+  "summary": {
+    "total_jobs": 2,
+    "completed_jobs": 0,
+    "failed_jobs": 2,
+    "batches_processed": 1,
+    "total_time": 0.0,
+    "average_time_per_job": 0.0,
+    "output_directory": "exports\\export_engine"
+  },
+  "batches": [
+    {
+      "batch_id": "batch_001",
+      "jobs": [
+        {
+          "node_id": "431:22190",
+          "node_name": "img_exporter_thumbnail",
+          "page_id": "143:2",
+          "page_name": "Test page Informatin",
+          "export_format": "SVG",
+          "status": "failed",
+          "file_path": null,
+          "file_size": 0,
+          "export_time": 0,
+          "error_message": "'NoneType' object has no attribute 'get'",
+          "retry_count": 1,
+          "checksum": null
+        },
+        {
+          "node_id": "431:22260",
+          "node_name": "svg_exporter_thumbnail",
+          "page_id": "143:2",
+          "page_name": "Test page Informatin",
+          "export_format": "SVG",
+          "status": "failed",
+          "file_path": null,
+          "file_size": 0,
+          "export_time": 0,
+          "error_message": "'NoneType' object has no attribute 'get'",
+          "retry_count": 1,
+          "checksum": null
+        }
+      ],
+      "status": "completed",
+      "start_time": "2025-08-29 03:08:53.195490+00:00",
+      "end_time": "2025-08-29 03:08:53.195490+00:00",
+      "total_jobs": 2,
+      "completed_jobs": 0,
+      "failed_jobs": 2
+    }
+  ],
+  "timestamp": "2025-08-29T03:08:53.195490+00:00"
+}

@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "backup_id": "test_backup_source_backup_20250829_023931",
+  "backup_path": "exports\\backups\\test_backup_source_backup_20250829_023931",
+  "metadata": {
+    "backup_id": "test_backup_source_backup_20250829_023931",
+    "source_path": "exports\\test_backup_source",
+    "backup_path": "exports\\backups\\test_backup_source_backup_20250829_023931",
+    "backup_type": "full",
+    "timestamp": "2025-08-29T02:39:31.545174+00:00",
+    "source_hash": "db91da60cacc8fd2d78769927718669e",
+    "backup_hash": "db91da60cacc8fd2d78769927718669e",
+    "verification_status": true,
+    "file_count": 3,
+    "total_size": 42
+  }
+}

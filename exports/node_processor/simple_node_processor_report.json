@@ -1,0 +1,62 @@
+{
+  "success": true,
+  "processed_nodes": [
+    {
+      "id": "431:22183",
+      "name": "svg_exporter_random-shape",
+      "type": "FRAME",
+      "page_id": "143:2",
+      "page_name": "Test page Informatin",
+      "prefix": "svg_exporter",
+      "suffix": null,
+      "base_name": "random-shape",
+      "naming_score": 45,
+      "is_target": false,
+      "validation_errors": [],
+      "transformed_name": null,
+      "export_ready": false
+    },
+    {
+      "id": "431:22260",
+      "name": "svg_exporter_thumbnail",
+      "type": "INSTANCE",
+      "page_id": "143:2",
+      "page_name": "Test page Informatin",
+      "prefix": "svg_exporter",
+      "suffix": null,
+      "base_name": "thumbnail",
+      "naming_score": 50,
+      "is_target": false,
+      "validation_errors": [],
+      "transformed_name": null,
+      "export_ready": true
+    },
+    {
+      "id": "431:22256",
+      "name": "svg_exporter_thumbnail-rasterized",
+      "type": "FRAME",
+      "page_id": "143:2",
+      "page_name": "Test page Informatin",
+      "prefix": "svg_exporter",
+      "suffix": null,
+      "base_name": "thumbnail-rasterized",
+      "naming_score": 45,
+      "is_target": true,
+      "validation_errors": [],
+      "transformed_name": null,
+      "export_ready": false
+    }
+  ],
+  "summary": {
+    "total_nodes": 3,
+    "export_ready_nodes": 1,
+    "target_nodes_found": 1,
+    "validation_errors": 0,
+    "average_naming_score": 46.666666666666664,
+    "processing_time": 0.0
+  },
+  "target_nodes": [
+    "431:22256"
+  ],
+  "timestamp": "2025-08-29T04:50:37.056068+00:00"
+}

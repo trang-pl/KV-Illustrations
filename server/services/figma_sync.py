@@ -83,10 +83,10 @@ class FigmaAPIClient:
         else:
             return data
 
-    async def get_node_structure(self, file_key: str, node_id: str) -> Optional[Dict]:
+    async def get_node_structure(self, file_key: str, node_id: str, depth: int = 10) -> Optional[Dict]:
         """Lấy cấu trúc node chi tiết với improved error handling"""
         url = f"{self.base_url}/files/{file_key}/nodes"
-        params = {"ids": node_id, "depth": 10}
+        params = {"ids": node_id, "depth": depth}
 
         async with aiohttp.ClientSession() as session:
             try:
@@ -243,7 +243,7 @@ class FigmaAPIClient:
 
 
 class FigmaSyncService:
-    """Dịch vụ đồng bộ chính với Figma"""
+    """Dịch vụ đồng bộ chính với Figma - Enhanced với Multi-Page Support"""
 
     def __init__(self):
         # Use environment variable directly to avoid settings loading issues
@@ -262,6 +262,34 @@ class FigmaSyncService:
     def setup_change_detection(self, cache_file: Path):
         """Thiết lập hệ thống phát hiện thay đổi"""
         self.change_detector = ChangeDetector(cache_file)
+
+    async def get_file_pages(self, file_key: str) -> List[Dict]:
+        """Lấy danh sách tất cả pages trong Figma file"""
+        print("🔍 Đang lấy thông tin tất cả pages trong file...")
+
+        file_info = await self.api_client.get_file_info(file_key)
+        if not file_info:
+            print("❌ Không thể lấy thông tin file")
+            return []
+
+        document = file_info.get("document", {})
+        children = document.get("children", [])
+
+        pages = []
+        for child in children:
+            if child.get("type") == "CANVAS":  # Pages are CANVAS type in Figma
+                page_info = {
+                    "id": child.get("id"),
+                    "name": child.get("name", "Unnamed Page"),
+                    "type": child.get("type"),
+                    "backgroundColor": child.get("backgroundColor"),
+                    "children_count": len(child.get("children", []))
+                }
+                pages.append(page_info)
+                print(f"📄 Page: {page_info['name']} (ID: {page_info['id']}) - {page_info['children_count']} children")
+
+        print(f"✅ Tìm thấy {len(pages)} pages trong file")
+        return pages
 
     def find_exportable_children(self, node: Dict, max_depth: int = 5) -> List[Dict]:
         """Tìm tất cả children có thể export với metadata nâng cao"""
@@ -315,15 +343,17 @@ class FigmaSyncService:
         node_id: str,
         output_dir: str,
         force_sync: bool = False,
-        naming_filters: Optional[Dict] = None
+        naming_filters: Optional[Dict] = None,
+        multi_page: bool = False
     ) -> Dict[str, Any]:
-        """Xử lý quá trình đồng bộ chính"""
-        print("He thong Export SVG Figma nang cao v2.0")
-        print("=" * 60)
+        """Xử lý quá trình đồng bộ chính - Enhanced với Multi-Page Support"""
+        print("🚀 He thong Export SVG Figma nang cao v2.1 - Multi-Page Edition")
+        print("=" * 70)
         print(f"File: {file_key}")
         print(f"Root Node: {node_id}")
         print(f"Output: {output_dir}")
         print(f"Force Sync: {force_sync}")
+        print(f"Multi-Page Mode: {multi_page}")
         print(f"Batch Size: {settings.figma.batch_size}")
         print(f"Delay: {settings.figma.delay_between_batches}s")
         print()
@@ -347,17 +377,89 @@ class FigmaSyncService:
         file_version = file_info.get("version", "unknown")
         print(f"Phien ban file: {file_version}")
 
-        # Buoc 2: Lay cau truc node voi improved fetch mechanism
+        # Buoc 2: Lay cau truc node(s) voi enhanced fetch mechanism
         print("\nBuoc 2: Dang lay cau truc node voi enhanced fetch...")
-        resolved_result = await self.api_client.get_node_structure_with_fallback(file_key, node_id)
 
-        if not resolved_result:
-            print("Lay cau truc node that bai - tried all fallback formats")
-            return {"error": "Failed to get node structure with any format"}
+        if multi_page:
+            # Multi-page mode: Get all pages and process each one
+            print("🔄 Multi-Page Mode: Processing all pages in file...")
+            pages = await self.get_file_pages(file_key)
 
-        root_node = resolved_result["node_data"]
-        actual_node_id = resolved_result["resolved_id"]
-        format_used = resolved_result.get("format_used", "unknown")
+            if not pages:
+                print("❌ Không tìm thấy pages nào trong file")
+                return {"error": "No pages found in file"}
+
+            all_exportable_children = []
+            page_results = []
+
+            for page in pages:
+                page_id = page["id"]
+                page_name = page["name"]
+                print(f"\n📄 Processing Page: {page_name} (ID: {page_id})")
+
+                # Fetch node structure for this page
+                resolved_result = await self.api_client.get_node_structure_with_fallback(file_key, page_id)
+
+                if not resolved_result:
+                    print(f"⚠️  Skipping page {page_name} - failed to get structure")
+                    continue
+
+                page_node = resolved_result["node_data"]
+                actual_page_id = resolved_result["resolved_id"]
+
+                print(f"   ✅ Page loaded: {page_node.get('name', 'Unknown')}")
+                print(f"   📊 Children: {len(page_node.get('children', []))}")
+
+                # Find exportable children in this page
+                page_exportable = self.find_exportable_children(page_node)
+
+                # Add page context to each child
+                for child in page_exportable:
+                    child["_page_context"] = {
+                        "page_id": page_id,
+                        "page_name": page_name,
+                        "page_node_id": actual_page_id
+                    }
+
+                all_exportable_children.extend(page_exportable)
+                page_results.append({
+                    "page_id": page_id,
+                    "page_name": page_name,
+                    "exportable_count": len(page_exportable),
+                    "total_children": len(page_node.get('children', []))
+                })
+
+                print(f"   🎯 Exportable nodes: {len(page_exportable)}")
+
+            print(f"\n📈 Multi-Page Summary:")
+            print(f"   Total pages processed: {len(page_results)}")
+            print(f"   Total exportable nodes: {len(all_exportable_children)}")
+
+            # For multi-page, we skip the normal find_exportable_children step
+            # and use the already collected exportable children directly
+            exportable_children = all_exportable_children
+            actual_node_id = "multi-page-container"
+            format_used = "multi-page"
+
+            # Set root_node for compatibility with rest of the code
+            root_node = {
+                "name": "Multi-Page Container",
+                "type": "MULTI_PAGE_CONTAINER",
+                "children": all_exportable_children
+            }
+
+        else:
+            # Single-page mode (original logic)
+            print("🔸 Single-Page Mode: Processing single node...")
+            resolved_result = await self.api_client.get_node_structure_with_fallback(file_key, node_id)
+
+            if not resolved_result:
+                print("Lay cau truc node that bai - tried all fallback formats")
+                return {"error": "Failed to get node structure with any format"}
+
+            root_node = resolved_result["node_data"]
+            actual_node_id = resolved_result["resolved_id"]
+            format_used = resolved_result.get("format_used", "unknown")
 
         print(f"Root node: {root_node.get('name', 'Unknown')}")
         print(f"Loai: {root_node.get('type')}")
@@ -366,9 +468,13 @@ class FigmaSyncService:
         print(f"Original ID: {node_id}")
 
         # Buoc 3: Tim children co the export
-        print("\nBuoc 3: Dang tim children co the export...")
-        exportable_children = self.find_exportable_children(root_node)
-        print(f"Tim thay {len(exportable_children)} nodes co the export")
+        if multi_page:
+            print("\nBuoc 3: Skipping find children (already collected in multi-page mode)...")
+            print(f"Using {len(exportable_children)} pre-collected nodes from all pages")
+        else:
+            print("\nBuoc 3: Dang tim children co the export...")
+            exportable_children = self.find_exportable_children(root_node)
+            print(f"Tim thay {len(exportable_children)} nodes co the export")
 
         # Buoc 4: Phat hien thay doi
         print("\nBuoc 4: Dang phat hien thay doi...")

@@ -1,0 +1,95 @@
+{
+  "success": true,
+  "pages": [
+    {
+      "id": "143:2",
+      "name": "Test page Informatin",
+      "background_color": {
+        "r": 0.11764705926179886,
+        "g": 0.11764705926179886,
+        "b": 0.11764705926179886,
+        "a": 1.0
+      },
+      "node_count": 5,
+      "visible_nodes": [
+        {
+          "id": "431:22183",
+          "name": "svg_exporter_random-shape",
+          "type": "FRAME",
+          "page_id": "143:2",
+          "page_name": "Test page Informatin",
+          "parent_id": "431:22181",
+          "children_count": 1,
+          "visible": true,
+          "locked": false
+        },
+        {
+          "id": "431:22190",
+          "name": "img_exporter_thumbnail",
+          "type": "INSTANCE",
+          "page_id": "143:2",
+          "page_name": "Test page Informatin",
+          "parent_id": "143:2",
+          "children_count": 2,
+          "visible": true,
+          "locked": false
+        },
+        {
+          "id": "431:22260",
+          "name": "svg_exporter_thumbnail",
+          "type": "INSTANCE",
+          "page_id": "143:2",
+          "page_name": "Test page Informatin",
+          "parent_id": "143:2",
+          "children_count": 2,
+          "visible": true,
+          "locked": false
+        },
+        {
+          "id": "431:22252",
+          "name": "img_exporter_thumbnail-rasterized",
+          "type": "FRAME",
+          "page_id": "143:2",
+          "page_name": "Test page Informatin",
+          "parent_id": "143:2",
+          "children_count": 1,
+          "visible": true,
+          "locked": false
+        },
+        {
+          "id": "431:22256",
+          "name": "svg_exporter_thumbnail-rasterized",
+          "type": "FRAME",
+          "page_id": "143:2",
+          "page_name": "Test page Informatin",
+          "parent_id": "143:2",
+          "children_count": 1,
+          "visible": true,
+          "locked": false
+        }
+      ]
+    }
+  ],
+  "total_pages": 1,
+  "total_nodes": 5,
+  "filter_criteria": {
+    "include_patterns": [
+      "svg_exporter_*",
+      "img_exporter_*"
+    ],
+    "exclude_patterns": [
+      "*_deprecated",
+      "*_temp"
+    ],
+    "case_sensitive": false,
+    "statistics": {
+      "total_input_pages": 3,
+      "total_input_nodes": 68,
+      "total_filtered_pages": 1,
+      "total_filtered_nodes": 5,
+      "pages_filtered_out": 2,
+      "nodes_filtered_out": 63
+    }
+  },
+  "error": null
+}
